@@ -19,6 +19,8 @@ public class Parque {
     Tren tren;
     StandDeBicis standBicis;
     CarreraGomones carreraGomones;
+    Colectivo colectivo;
+    int nro;
 
     public Parque(int indiv, int dob) {
         this.shop = new Shop();
@@ -30,5 +32,12 @@ public class Parque {
         this.tren = new Tren();
         this.standBicis = new StandDeBicis(7);
         this.carreraGomones = new CarreraGomones(indiv, dob, 7);
+        this.colectivo = new Colectivo();
+        this.nro = 0;
+    }
+
+    public int recibirPulseraYPasarMolinete() {
+        System.out.println("El visitante " + Thread.currentThread().getName() + " ha entrado al parque.");
+        return nro++;
     }
 }

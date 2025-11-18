@@ -1,10 +1,10 @@
 package TPOConcurrente;
 
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 /*
 Carrera de gomones por el río: esta actividad permite que los visitantes bajen por 
@@ -22,62 +22,68 @@ no importa el tipo.
 --->CYCLIC BARRIER
 */
 public class CarreraGomones {
-    private int individuales, individualesEnUso, dobles, doblesEnUso, visitantesEsperandoIndiv,
-            visitantesEsperandoDoble, esperandoCompa, llegaron, totalGomonesLargada;
+    private int individuales, individualesEnUso, dobles, doblesEnUso, visEsperandoIndiv,
+            visEsperandoDoble, esperandoCompa, terminaron, gomonesParaLargada;
     private Lock lock;
-    private Condition ind, dob, esperaIndiv, esperaDoble, esperaCompa, largada, puedeLargar;
+    private Condition gomonIndiv, gomonDoble, esperaIndiv, esperaDoble, esperaCompa, largada, esperaLargada;
     private CyclicBarrier salida;
     private Semaphore sem;
+    private Boolean carreraComenzo;
 
     public CarreraGomones(int indiv, int dob, int h) {
         this.individuales = indiv;
         this.individualesEnUso = 0;
         this.dobles = dob;
         this.doblesEnUso = 0;
+        this.gomonesParaLargada = h;
         this.lock = new ReentrantLock(true);
-        this.totalGomonesLargada = h;
-        this.ind = lock.newCondition();
-        this.dob = lock.newCondition();
+        this.gomonIndiv = lock.newCondition();
+        this.gomonDoble = lock.newCondition();
         this.esperaIndiv = lock.newCondition();
         this.esperaDoble = lock.newCondition();
         this.esperaCompa = lock.newCondition();
         this.largada = lock.newCondition();
-        this.puedeLargar = lock.newCondition();
-        this.sem = new Semaphore(h);
-
-        this.visitantesEsperandoIndiv = 0;
-        this.visitantesEsperandoDoble = 0;
+        this.esperaLargada = lock.newCondition();
+        this.visEsperandoIndiv = 0;
+        this.visEsperandoDoble = 0;
         this.esperandoCompa = 0;
-        this.llegaron = 0;
-        this.salida = new CyclicBarrier(h, () -> {
+        this.terminaron = 0;
+        this.salida = new CyclicBarrier(gomonesParaLargada, () -> {
             System.out.println(
                     ColoresSout.UNDERLINE + ColoresSout.PASTEL_ORANGE + "¡Comienza la carrera!" + ColoresSout.RESET);
         });
+        // this.carreraComenzo = false;
+        this.sem = new Semaphore(gomonesParaLargada);
     }
 
     public void pedirGomon(int tipo) {
         lock.lock();
         try {
             if (tipo == 1) { // Individual
-                visitantesEsperandoIndiv++;
+                visEsperandoIndiv++;
                 while (individualesEnUso >= individuales) {
                     esperaIndiv.await();
                     System.out.println(Thread.currentThread().getName() + " esta esperando un gomon INDIVIDUAL");
                 }
                 individualesEnUso++;
-                visitantesEsperandoIndiv--;
+                visEsperandoIndiv--;
                 System.out.println(Thread.currentThread().getName() + " SUBIO a un gomon INDIVIDUAL, indiv en uso: "
                         + individualesEnUso);
-                ind.signal();
+                gomonIndiv.signal();
+                /*
+                 * while (individualesEnUso + doblesEnUso >= gomonesParaLargada) {
+                 * esperaLargada.await();
+                 * }
+                 */
                 largada.await();
 
             } else { // Doble
-                visitantesEsperandoDoble++;
+                visEsperandoDoble++;
                 while (doblesEnUso >= dobles) {
                     esperaDoble.await();
                     System.out.println(Thread.currentThread().getName() + " esta esperando un gomon DOBLE");
                 }
-                visitantesEsperandoDoble--;
+                visEsperandoDoble--;
                 esperandoCompa++;
                 if (esperandoCompa == 1) {
                     while (esperandoCompa == 1) {
@@ -93,10 +99,14 @@ public class CarreraGomones {
                             + " SUBIO a un gomon DOBLE Y COMPLETO PAREJA, dobles en uso: "
                             + doblesEnUso);
                     esperaCompa.signal();
-                    dob.signal();
+                    gomonDoble.signal();
                 }
+                /*
+                 * while (individualesEnUso + doblesEnUso >= gomonesParaLargada) {
+                 * esperaLargada.await();
+                 * }
+                 */
                 largada.await();
-
             }
 
         } catch (Exception e) {
@@ -110,8 +120,8 @@ public class CarreraGomones {
     public void esperaIndiv() {
         lock.lock();
         try {
-            while (visitantesEsperandoIndiv == 0) {
-                ind.await();
+            while (visEsperandoIndiv == 0) {
+                gomonIndiv.await();
             }
             System.out.println(ColoresSout.PASTEL_BLUE + "GOMON INDIVIDUAL " + Thread.currentThread().getName()
                     + " fue llamado." + ColoresSout.RESET);
@@ -127,8 +137,8 @@ public class CarreraGomones {
     public void esperaDoble() {
         lock.lock();
         try {
-            while (visitantesEsperandoDoble == 0) {
-                dob.await();
+            while (visEsperandoDoble == 0) {
+                gomonDoble.await();
             }
             System.out.println(ColoresSout.PASTEL_BLUE + "GOMON DOBLE " + Thread.currentThread().getName()
                     + " fue llamado." + ColoresSout.RESET);
@@ -141,22 +151,23 @@ public class CarreraGomones {
         }
     }
 
-    public void arranca(int t) throws Exception {
+    public void carrera(int t) throws Exception {
         sem.acquire();
         System.out.println(Thread.currentThread().getName() + " PERMISO PARA IR A BARRERA");
         salida.await();
-        System.out.println(ColoresSout.CYAN + "<< El GOMON " + t + Thread.currentThread().getName()
+        carreraComenzo = true;
+        System.out.println(ColoresSout.CYAN + "<< El GOMON de " + t + " : " + Thread.currentThread().getName()
                 + " esta participando en la carrera! >> " + ColoresSout.RESET);
     }
 
-    public void terminar(int t) {
+    public void terminarCarrera(int t) {
         lock.lock();
         try {
-            llegaron++;
-            if (llegaron == 1) {
+            terminaron++;
+            if (terminaron == 1) {
                 System.out.println(Thread.currentThread().getName()
                         + " EL GOMON GANO LA CARRERA!!!");
-            } else if (llegaron < totalGomonesLargada) {
+            } else if (terminaron < gomonesParaLargada) {
                 System.out.println(Thread.currentThread().getName()
                         + " EL GOMON TERMINO LA CARRERA");
             } else {// ultimo en llegar
@@ -165,8 +176,11 @@ public class CarreraGomones {
                 largada.signalAll();
                 esperaIndiv.signalAll();
                 esperaDoble.signalAll();
-                llegaron = 0;
-                sem.release(totalGomonesLargada);
+                terminaron = 0;
+
+                sem.release(gomonesParaLargada);
+
+                // esperaLargada.signalAll();
             }
 
         } catch (Exception e) {

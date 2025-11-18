@@ -22,14 +22,13 @@ public class Gomon implements Runnable {
                 } else {
                     parque.carreraGomones.esperaDoble();
                 }
-                parque.carreraGomones.arranca(tipo);
+                parque.carreraGomones.carrera(tipo);
                 Thread.sleep(random.nextInt(4000, 5000));
-                parque.carreraGomones.terminar(tipo);
+                parque.carreraGomones.terminarCarrera(tipo);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

@@ -3,7 +3,7 @@ package TPOConcurrente;
 
 public class Main {
     public static void main(String[] args) {
-        int cantVisitantes = 30;
+        int cantVisitantes = 25;
         int individuales = 5;
         int dobles = 5;
         Parque parque = new Parque(individuales, dobles);
@@ -15,8 +15,10 @@ public class Main {
         Thread[] hilosVisitantes = new Thread[cantVisitantes];
         Thread adminTobogan = new Thread(new AdminTobogan(parque));
         Thread maquinista = new Thread(new Maquinista(parque));
+        Thread colectivero = new Thread(new Colectivero(parque));
         adminTobogan.start();
         maquinista.start();
+        colectivero.start();
 
         for (int i = 0; i < individuales; i++) {
             gIndividuales[i] = new Gomon(1, parque);
@@ -31,7 +33,7 @@ public class Main {
         }
 
         for (int i = 0; i < cantVisitantes; i++) {
-            visitantes[i] = new Visitante(i, parque);
+            visitantes[i] = new Visitante(parque);
             hilosVisitantes[i] = new Thread(visitantes[i]);
             hilosVisitantes[i].start();
         }

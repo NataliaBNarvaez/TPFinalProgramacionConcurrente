@@ -7,8 +7,7 @@ public class Visitante implements Runnable {
     private Parque parque;
     private boolean almorzo, merendo;
 
-    public Visitante(int unNro, Parque elParque) {
-        this.nroDePulsera = unNro;
+    public Visitante(Parque elParque) {
         this.parque = elParque;
         this.almorzo = false;
         this.merendo = false;
@@ -16,10 +15,16 @@ public class Visitante implements Runnable {
 
     public void run() {
         try {
+            if (elegir() == 1) { // elige llegar en tour folklorico
+                parque.colectivo.irEnColectivo();
+                parque.colectivo.bajarseDelColectivo();
+            } // sino llega de forma particular
+            this.nroDePulsera = parque.recibirPulseraYPasarMolinete();
+
             while (true) { // Hay q poner condicion de corte con el horario del parque
                 Random random = new Random();
                 int atraccionAVisitar = random.nextInt(5);
-                switch (4) {
+                switch (5) {
                     case 0: // Visita la tienda
                         parque.shop.adquirirSouvenir();
                         if (elegir() == 0) {
@@ -76,7 +81,6 @@ public class Visitante implements Runnable {
                          * parque.tren.bajarseDelTren();
                          * }
                          */
-
                         parque.carreraGomones.pedirGomon(elegir() + 1);
 
                         parque.carreraGomones.pedirPertenencias();
@@ -97,4 +101,5 @@ public class Visitante implements Runnable {
         Random random = new Random();
         return random.nextInt(2);
     }
+
 }
