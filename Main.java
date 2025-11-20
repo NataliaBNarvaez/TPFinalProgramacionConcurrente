@@ -3,7 +3,8 @@ package TPOConcurrente;
 
 public class Main {
     public static void main(String[] args) {
-        int cantVisitantes = 25;
+        int cantVisitantes1 = 10;
+        int cantVisitantes2 = 7;
         int individuales = 5;
         int dobles = 5;
         Parque parque = new Parque(individuales, dobles);
@@ -11,11 +12,13 @@ public class Main {
         Thread[] hilosGIndividuales = new Thread[individuales];
         Gomon[] gDobles = new Gomon[dobles];
         Thread[] hilosGDobles = new Thread[dobles];
-        Visitante[] visitantes = new Visitante[cantVisitantes];
-        Thread[] hilosVisitantes = new Thread[cantVisitantes];
+        Visitante[] visitantes = new Visitante[cantVisitantes1];
+        Thread[] hilosVisitantes = new Thread[cantVisitantes1];
+        Thread controladorParque = new Thread(new ControladorParque(parque));
         Thread adminTobogan = new Thread(new AdminTobogan(parque));
         Thread maquinista = new Thread(new Maquinista(parque));
         Thread colectivero = new Thread(new Colectivero(parque));
+        controladorParque.start();
         adminTobogan.start();
         maquinista.start();
         colectivero.start();
@@ -32,7 +35,31 @@ public class Main {
             hilosGDobles[i].start();
         }
 
-        for (int i = 0; i < cantVisitantes; i++) {
+        for (int i = 0; i < cantVisitantes1; i++) {
+            visitantes[i] = new Visitante(parque);
+            hilosVisitantes[i] = new Thread(visitantes[i]);
+            hilosVisitantes[i].start();
+        }
+
+        try {
+            Thread.sleep(6000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // Para poder ver que pueden entrar luego de la largada iniciar
+        for (int i = 0; i < cantVisitantes2; i++) {
+            visitantes[i] = new Visitante(parque);
+            hilosVisitantes[i] = new Thread(visitantes[i]);
+            hilosVisitantes[i].start();
+        }
+
+        try {
+            Thread.sleep(10000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // Para poder ver que una vez cerro ya no pueden entrar
+        for (int i = 0; i < cantVisitantes2; i++) {
             visitantes[i] = new Visitante(parque);
             hilosVisitantes[i] = new Thread(visitantes[i]);
             hilosVisitantes[i].start();

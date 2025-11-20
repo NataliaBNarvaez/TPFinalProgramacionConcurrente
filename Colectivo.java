@@ -9,6 +9,7 @@ public class Colectivo {
     private int capacidadColectivo, subieronAlCole;
     private Lock lock;
     private Condition esperaColectivo, colectivero, cole;
+    private Boolean empezo;
 
     public Colectivo() {
         this.capacidadColectivo = 25;
@@ -17,20 +18,21 @@ public class Colectivo {
         this.esperaColectivo = lock.newCondition();
         this.colectivero = lock.newCondition();
         this.cole = lock.newCondition();
+        this.empezo = false;
     }
 
     public void irEnColectivo() {
         lock.lock();
         try {
-            while (subieronAlCole >= capacidadColectivo) {
+            while (subieronAlCole >= capacidadColectivo || empezo) {
                 System.out.println(
                         "El visitante " + Thread.currentThread().getName()
                                 + " esta esperando al colectivo folklorico.");
                 esperaColectivo.await();
             }
             subieronAlCole++;
-            System.out.println("El visitante " + Thread.currentThread().getName()
-                    + " se ha subido al tour en el colectivo folklorico.");
+            System.out.println(ColoresSout.PASTEL_MINT + "El visitante " + Thread.currentThread().getName()
+                    + " se ha subido al tour en el colectivo folklorico." + ColoresSout.RESET);
             if (subieronAlCole == capacidadColectivo) {
                 colectivero.signal();
             }
@@ -69,7 +71,8 @@ public class Colectivo {
     public void arrancarTourColectivo() {
         lock.lock();
         try {
-            colectivero.await(4, TimeUnit.SECONDS);
+            colectivero.await(3, TimeUnit.SECONDS);
+            empezo = true;
             System.out.println(
                     ColoresSout.UNDERLINE + ColoresSout.PASTEL_GREEN + "¡Ha comenzado el tour folklorico!"
                             + ColoresSout.RESET);
@@ -88,6 +91,24 @@ public class Colectivo {
             System.out
                     .println(ColoresSout.UNDERLINE + ColoresSout.PASTEL_GREEN + "¡Ha terminado el tour folklorico!"
                             + ColoresSout.RESET);
+            cole.signalAll();
+            empezo = false;
+            esperaColectivo.signalAll();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void cerrarColectivo() {
+        lock.lock();
+        try {
+            System.out.println(ColoresSout.BOLD + ColoresSout.PASTEL_GREEN
+                    + "HA CERRADO EL RECORRIDO EN COLECTIVO FOLKLORICO"
+                    + ColoresSout.RESET);
             cole.signalAll();
 
         } catch (Exception e) {

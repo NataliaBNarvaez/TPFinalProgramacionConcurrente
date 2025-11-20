@@ -5,7 +5,7 @@ import java.util.Random;
 public class Visitante implements Runnable {
     private int nroDePulsera;
     private Parque parque;
-    private boolean almorzo, merendo;
+    private boolean almorzo, merendo, continuar;
 
     public Visitante(Parque elParque) {
         this.parque = elParque;
@@ -19,42 +19,49 @@ public class Visitante implements Runnable {
                 parque.colectivo.irEnColectivo();
                 parque.colectivo.bajarseDelColectivo();
             } // sino llega de forma particular
+
+            parque.entrarAlParque();
+            continuar = parque.puedeEntrar();
             this.nroDePulsera = parque.recibirPulseraYPasarMolinete();
 
-            while (true) { // Hay q poner condicion de corte con el horario del parque
+            while (continuar) {
                 Random random = new Random();
                 int atraccionAVisitar = random.nextInt(5);
-                switch (5) {
+                switch (3) {
                     case 0: // Visita la tienda
-                        parque.shop.adquirirSouvenir();
-                        if (elegir() == 0) {
-                            parque.shop.pagarEnCaja1();
-                        } else {
-                            parque.shop.pagarEnCaja2();
+                        if (parque.shop.adquirirSouvenir()) {
+                            if (elegir() == 0) {
+                                parque.shop.pagarEnCaja1();
+                            } else {
+                                parque.shop.pagarEnCaja2();
+                            }
                         }
                         break;
 
                     case 1: // Hace snorkel
-                        parque.snorkell.adquirirEquipoSnorkell();
-                        System.out.println(ColoresSout.BLUE + "~~ El visitante " +
-                                Thread.currentThread().getName()
-                                + " esta haciendo snorkell ~~" + ColoresSout.RESET);
-                        Thread.sleep(10000);
-                        parque.snorkell.devolverEquipoSnorkell();
+                        if (parque.snorkell.adquirirEquipoSnorkell()) {
+                            System.out.println(ColoresSout.BLUE + "~~ El visitante " +
+                                    Thread.currentThread().getName()
+                                    + " esta haciendo snorkell ~~" + ColoresSout.RESET);
+                            Thread.sleep(3000);
+                            parque.snorkell.devolverEquipoSnorkell();
+                        }
                         break;
 
                     case 2: // Va a un restaurante
                         int restaurante = random.nextInt(3);
                         if (!almorzo) {
-                            parque.restaurantes[restaurante].entrarAComer("almorzar");
-                            almorzo = true;
-                            Thread.sleep(random.nextInt(4));
-                            parque.restaurantes[restaurante].salirDelRestaurante();
+                            if (parque.restaurantes[restaurante].entrarAComer("almorzar")) {
+                                almorzo = true;
+                                Thread.sleep(random.nextInt(4));
+                                parque.restaurantes[restaurante].salirDelRestaurante();
+                            }
                         } else if (!merendo) {
-                            parque.restaurantes[restaurante].entrarAComer("merendar");
-                            merendo = true;
-                            Thread.sleep(random.nextInt(2));
-                            parque.restaurantes[restaurante].salirDelRestaurante();
+                            if (parque.restaurantes[restaurante].entrarAComer("merendar")) {
+                                merendo = true;
+                                Thread.sleep(random.nextInt(2));
+                                parque.restaurantes[restaurante].salirDelRestaurante();
+                            }
                         }
                         break;
 
@@ -82,19 +89,20 @@ public class Visitante implements Runnable {
                          * }
                          */
                         parque.carreraGomones.pedirGomon(elegir() + 1);
-
                         parque.carreraGomones.pedirPertenencias();
-
                         break;
 
                     default:
                         break;
                 }
+                continuar = parque.puedeContinuar();
             }
 
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        parque.retirarse();
     }
 
     private int elegir() {

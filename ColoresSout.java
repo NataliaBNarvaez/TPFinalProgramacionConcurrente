@@ -16,7 +16,7 @@ public class ColoresSout {
     public static final String PASTEL_BLUE = "\u001B[38;2;186;225;255m";// Terminar carrera gomones
     public static final String PASTEL_PURPLE = "\u001B[38;2;215;186;255m"; // Anuncio recorrido Tren
     public static final String PASTEL_LAVENDER = "\u001B[38;2;230;200;255m";
-    public static final String PASTEL_MINT = "\u001B[38;2;189;255;229m";
+    public static final String PASTEL_MINT = "\u001B[38;2;189;255;229m"; // llegada en cole
     public static final String PASTEL_PEACH = "\u001B[38;2;255;204;170m";
     public static final String BOLD = "\u001B[1m";
     public static final String UNDERLINE = "\u001B[4m";

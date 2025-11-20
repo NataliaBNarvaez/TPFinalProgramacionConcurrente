@@ -9,11 +9,12 @@ public class Maquinista implements Runnable {
 
     public void run() {
         try {
-            while (true) {
+            while (parque.puedeContinuar()) {
                 parque.tren.arrancarRecorridoTren();
                 Thread.sleep(5000);
                 parque.tren.terminarRecorridoTren();
             }
+            parque.tren.cerrarTren();
 
         } catch (Exception e) {
             e.printStackTrace();

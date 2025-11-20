@@ -9,6 +9,7 @@ public class Tren {
     private int capacidadTren, subieronAlTren;
     private Lock lock;
     private Condition esperaTren, maquinista, tren;
+    private Boolean empezo;
 
     public Tren() {
         this.capacidadTren = 15;
@@ -17,12 +18,13 @@ public class Tren {
         this.esperaTren = lock.newCondition();
         this.maquinista = lock.newCondition();
         this.tren = lock.newCondition();
+        this.empezo = false;
     }
 
     public void irEnTren() {
         lock.lock();
         try {
-            while (subieronAlTren >= capacidadTren) {
+            while (subieronAlTren >= capacidadTren || empezo) {
                 System.out.println("El visitante " + Thread.currentThread().getName() + " esta esperando al tren.");
                 esperaTren.await();
             }
@@ -66,6 +68,7 @@ public class Tren {
         lock.lock();
         try {
             maquinista.await(7, TimeUnit.SECONDS);
+            empezo = true;
             System.out.println(
                     ColoresSout.UNDERLINE + ColoresSout.PASTEL_PURPLE + "¡Ha comenzado el viaje en tren!"
                             + ColoresSout.RESET);
@@ -82,6 +85,23 @@ public class Tren {
         lock.lock();
         try {
             System.out.println(ColoresSout.UNDERLINE + ColoresSout.PASTEL_PURPLE + "¡Ha terminado el viaje en tren!"
+                    + ColoresSout.RESET);
+            tren.signalAll();
+            empezo = false;
+            esperaTren.signalAll();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void cerrarTren() {
+        lock.lock();
+        try {
+            System.out.println(ColoresSout.BOLD + ColoresSout.PASTEL_PURPLE + "HA CERRADO EL RECORRIDO EN TREN"
                     + ColoresSout.RESET);
             tren.signalAll();
 

@@ -9,11 +9,12 @@ public class Colectivero implements Runnable {
 
     public void run() {
         try {
-            while (true) {
+            while (parque.puedeEntrar()) {
                 parque.colectivo.arrancarTourColectivo();
                 Thread.sleep(3000);
                 parque.colectivo.terminarTourColectivo();
             }
+            parque.colectivo.cerrarColectivo();
 
         } catch (Exception e) {
             e.printStackTrace();

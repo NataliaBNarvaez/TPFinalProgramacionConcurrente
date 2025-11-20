@@ -8,17 +8,26 @@ una de las dos cajas disponibles.
 --->SEMAFOROS
 */
 public class Shop {
-    Semaphore caja1, caja2;
+    private Semaphore tienda, caja1, caja2;
+    private boolean sigueAbierto, aux;
 
     public Shop() {
+        tienda = new Semaphore(1);
         caja1 = new Semaphore(1, true);
         caja2 = new Semaphore(1, true);
+        this.sigueAbierto = true;
     }
 
-    public void adquirirSouvenir() throws InterruptedException {
-        // deberia elegir diferentes tipos de souvenirs? como lo simulo?
-        System.out.println("El visitante " + Thread.currentThread().getName() + " esta eligiendo un souvenir");
-        Thread.sleep(3000);
+    public boolean adquirirSouvenir() throws InterruptedException {
+        // deberia poder elegir diferentes tipos de souvenirs?
+        if (aux = puedeEntrar()) {
+            System.out.println("El visitante " + Thread.currentThread().getName() + " esta eligiendo un souvenir");
+            Thread.sleep(3000);
+        } else {
+            System.out.println("El visitante " + Thread.currentThread().getName()
+                    + " NO puede eligir un souvenir ya que cerro la tienda");
+        }
+        return aux;
     }
 
     public void pagarEnCaja1() throws InterruptedException {
@@ -35,5 +44,20 @@ public class Shop {
         System.out.println(ColoresSout.GREEN + "El visitante " + Thread.currentThread().getName()
                 + " ha pagado por un souvenir en caja 2" + ColoresSout.RESET);
         caja2.release();
+    }
+
+    public boolean puedeEntrar() throws InterruptedException {
+        tienda.acquire();
+        aux = sigueAbierto;
+        tienda.release();
+        return aux;
+    }
+
+    public void cerrarShop() throws InterruptedException {
+        tienda.acquire();
+        System.out.println(
+                ColoresSout.BOLD + ColoresSout.GREEN + "HA CERRADO LA TIENDA DE SOUVENIRES" + ColoresSout.RESET);
+        sigueAbierto = false;
+        tienda.release();
     }
 }

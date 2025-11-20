@@ -14,23 +14,43 @@ atendidas en orden de llegada. Los restaurantes tienen habilitada una cola de es
 public class Restaurante {
     private int nroRestaurante;
     private BlockingQueue<String> restaurante;
+    private Boolean sigueAbierto, aux;
 
     public Restaurante(int nro, int capacidad) {
         this.nroRestaurante = nro;
         this.restaurante = new ArrayBlockingQueue(capacidad);
+        this.sigueAbierto = true;
     }
 
-    public void entrarAComer(String consumo) throws InterruptedException {
+    public boolean entrarAComer(String consumo) throws InterruptedException {
         System.out.println(
                 Thread.currentThread().getName() + " esta esperando para entrar al restaurante " + nroRestaurante);
-        restaurante.put("entro");
-        System.out.println(ColoresSout.PURPLE +
-                Thread.currentThread().getName() + " entro al restaurante " + nroRestaurante + " para " + consumo
-                + ColoresSout.RESET);
+        if (aux = puedeEntrar()) {
+            restaurante.put("entro");
+            System.out.println(ColoresSout.PURPLE +
+                    Thread.currentThread().getName() + " entro al restaurante " + nroRestaurante + " para "
+                    + consumo + ColoresSout.RESET);
+        } else {
+            System.out.println(
+                    Thread.currentThread().getName() + " NO puede entrar al restaurante " + nroRestaurante + " para "
+                            + consumo + " porque cerro." + ColoresSout.RESET);
+        }
+        return aux;
     }
 
     public void salirDelRestaurante() throws InterruptedException {
         System.out.println(Thread.currentThread().getName() + " salio del restaurante " + nroRestaurante);
         restaurante.take();
+    }
+
+    public synchronized boolean puedeEntrar() {
+        return sigueAbierto;
+    }
+
+    public void cerrarRestaurante() {
+        System.out.println(ColoresSout.BOLD + ColoresSout.PURPLE
+                + "HA CERRADO EL RESTAURANTE " + nroRestaurante + ColoresSout.RESET);
+        restaurante.clear();
+        sigueAbierto = false;
     }
 }
