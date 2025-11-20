@@ -28,7 +28,7 @@ public class CarreraGomones {
     private Condition gomonIndiv, gomonDoble, esperaIndiv, esperaDoble, esperaCompa, largada, esperaLargada;
     private CyclicBarrier salida;
     private Semaphore sem;
-    private Boolean carreraComenzo;
+    private Boolean carreraComenzo, sigueAbierto;
 
     public CarreraGomones(int indiv, int dob, int h) {
         this.individuales = indiv;
@@ -50,13 +50,14 @@ public class CarreraGomones {
         this.terminaron = 0;
         this.salida = new CyclicBarrier(gomonesParaLargada, () -> {
             System.out.println(
-                    ColoresSout.UNDERLINE + ColoresSout.PASTEL_ORANGE + "¡Comienza la carrera!" + ColoresSout.RESET);
+                    ColoresSout.UNDERLINE + ColoresSout.RED + "¡Comienza la carrera!" + ColoresSout.RESET);
         });
-        // this.carreraComenzo = false;
+        this.carreraComenzo = false;
         this.sem = new Semaphore(gomonesParaLargada);
+        this.sigueAbierto = true;
     }
 
-    public void pedirGomon(int tipo) {
+    public boolean pedirGomon(int tipo) throws InterruptedException {
         lock.lock();
         try {
             if (tipo == 1) { // Individual
@@ -66,24 +67,23 @@ public class CarreraGomones {
                     System.out.println(Thread.currentThread().getName() + " esta esperando un gomon INDIVIDUAL");
                 }
                 individualesEnUso++;
-                visEsperandoIndiv--;
                 System.out.println(Thread.currentThread().getName() + " SUBIO a un gomon INDIVIDUAL, indiv en uso: "
                         + individualesEnUso);
                 gomonIndiv.signal();
-                /*
-                 * while (individualesEnUso + doblesEnUso >= gomonesParaLargada) {
-                 * esperaLargada.await();
-                 * }
-                 */
+
+                while (individualesEnUso + doblesEnUso >= gomonesParaLargada || carreraComenzo) {
+                    esperaLargada.await();
+                }
+                System.out.println(ColoresSout.RED + Thread.currentThread().getName() + " EN LARGADA INDIVIDUAL"
+                        + ColoresSout.RESET);
                 largada.await();
 
             } else { // Doble
                 visEsperandoDoble++;
                 while (doblesEnUso >= dobles) {
-                    esperaDoble.await();
                     System.out.println(Thread.currentThread().getName() + " esta esperando un gomon DOBLE");
+                    esperaDoble.await();
                 }
-                visEsperandoDoble--;
                 esperandoCompa++;
                 if (esperandoCompa == 1) {
                     while (esperandoCompa == 1) {
@@ -91,6 +91,8 @@ public class CarreraGomones {
                                 + " SUBIO a un gomon DOBLE Y ESPERA COMPA, dobles en uso: "
                                 + doblesEnUso);
                         esperaCompa.await();
+                        System.out.println(ColoresSout.YELLOW + Thread.currentThread().getName()
+                                + " SE DESPERTO XQ CONSIGUIO COMPA " + ColoresSout.RESET);
                     }
                 } else {
                     esperandoCompa = 0;
@@ -101,16 +103,16 @@ public class CarreraGomones {
                     esperaCompa.signal();
                     gomonDoble.signal();
                 }
-                /*
-                 * while (individualesEnUso + doblesEnUso >= gomonesParaLargada) {
-                 * esperaLargada.await();
-                 * }
-                 */
+
+                while (individualesEnUso + doblesEnUso >= gomonesParaLargada || carreraComenzo) {
+                    System.out.println("ESPERA LARGADA " + Thread.currentThread().getName());
+                    esperaLargada.await();
+                }
+                System.out.println(
+                        ColoresSout.RED + Thread.currentThread().getName() + " EN LARGADA DOBLE" + ColoresSout.RESET);
                 largada.await();
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            return sigueAbierto;
 
         } finally {
             lock.unlock();
@@ -123,8 +125,9 @@ public class CarreraGomones {
             while (visEsperandoIndiv == 0) {
                 gomonIndiv.await();
             }
-            System.out.println(ColoresSout.PASTEL_BLUE + "GOMON INDIVIDUAL " + Thread.currentThread().getName()
-                    + " fue llamado." + ColoresSout.RESET);
+            visEsperandoIndiv--;
+            System.out.println("GOMON INDIVIDUAL " + Thread.currentThread().getName()
+                    + " fue llamado.");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -140,8 +143,9 @@ public class CarreraGomones {
             while (visEsperandoDoble == 0) {
                 gomonDoble.await();
             }
-            System.out.println(ColoresSout.PASTEL_BLUE + "GOMON DOBLE " + Thread.currentThread().getName()
-                    + " fue llamado." + ColoresSout.RESET);
+            visEsperandoDoble = visEsperandoDoble - 2;
+            System.out.println("GOMON DOBLE " + Thread.currentThread().getName()
+                    + " fue llamado.");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -165,22 +169,25 @@ public class CarreraGomones {
         try {
             terminaron++;
             if (terminaron == 1) {
-                System.out.println(Thread.currentThread().getName()
-                        + " EL GOMON GANO LA CARRERA!!!");
+                System.out.println(ColoresSout.GREEN + Thread.currentThread().getName()
+                        + " EL GOMON GANO LA CARRERA!!!" + ColoresSout.RESET);
             } else if (terminaron < gomonesParaLargada) {
-                System.out.println(Thread.currentThread().getName()
-                        + " EL GOMON TERMINO LA CARRERA");
+                System.out.println(
+                        ColoresSout.PASTEL_MINT + Thread.currentThread().getName()
+                                + " EL GOMON TERMINO LA CARRERA" + ColoresSout.RESET);
             } else {// ultimo en llegar
-                System.out.println(Thread.currentThread().getName()
-                        + " EL GOMON ES EL ULTIMO EN TERMINAR LA CARRERA :(");
+                System.out.println(ColoresSout.PASTEL_ORANGE
+                        + Thread.currentThread().getName()
+                        + " EL GOMON ES EL ULTIMO EN TERMINAR LA CARRERA :(" + ColoresSout.RESET);
                 largada.signalAll();
                 esperaIndiv.signalAll();
                 esperaDoble.signalAll();
                 terminaron = 0;
+                carreraComenzo = false;
 
                 sem.release(gomonesParaLargada);
 
-                // esperaLargada.signalAll();
+                esperaLargada.signalAll();
             }
 
         } catch (Exception e) {
@@ -197,7 +204,26 @@ public class CarreraGomones {
     }
 
     public void pedirPertenencias() {
-        System.out.println(ColoresSout.RED + Thread.currentThread().getName()
+        System.out.println(ColoresSout.PASTEL_BLUE + Thread.currentThread().getName()
                 + " pide sus pertenencias" + ColoresSout.RESET);
+    }
+
+    public void cerrarCarrera() {
+        lock.lock();
+        try {
+            System.out.println(ColoresSout.BOLD + ColoresSout.RED + "HA CERRADO LA CARRERA DE GOMONES POR EL RIO"
+                    + ColoresSout.RESET);
+            sigueAbierto = false;
+            individualesEnUso = 0;
+            doblesEnUso = 0;
+            visEsperandoDoble = 0;
+            visEsperandoIndiv = 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        } finally {
+            lock.unlock();
+        }
     }
 }

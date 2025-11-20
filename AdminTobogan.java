@@ -10,10 +10,10 @@ public class AdminTobogan implements Runnable {
 
     public void run() {
         try {
-            while (true) {
+            while (parque.puedeContinuar()) {
                 parque.faro.asignarTobogan();
                 System.out.println("El administrador del tobogan asigno un tobogan...");
-                Thread.sleep(300);
+                Thread.sleep(500);
             }
 
         } catch (Exception e) {

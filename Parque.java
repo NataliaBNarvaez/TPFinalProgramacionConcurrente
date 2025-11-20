@@ -25,7 +25,7 @@ public class Parque {
     StandDeBicis standBicis;
     CarreraGomones carreraGomones;
     Colectivo colectivo;
-    int nro;
+    private int nro;
     private Lock lock;
     private Condition esperaApertura, controlador;
     private boolean abierto, comenzarActividad;
@@ -39,7 +39,7 @@ public class Parque {
         this.faro = new Faro(9);
         this.tren = new Tren();
         this.standBicis = new StandDeBicis(11);
-        this.carreraGomones = new CarreraGomones(indiv, dob, 7);
+        this.carreraGomones = new CarreraGomones(indiv, dob, 6);
         this.colectivo = new Colectivo();
         this.nro = 0;
         // Condiciones para la apertura y cierre del parque
@@ -104,6 +104,9 @@ public class Parque {
             restaurantes[0].cerrarRestaurante();
             restaurantes[1].cerrarRestaurante();
             restaurantes[2].cerrarRestaurante();
+            faro.cerrarFaro();
+            carreraGomones.cerrarCarrera();
+            standBicis.cerrarStandBicis();
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -9,7 +9,7 @@ public class Tren {
     private int capacidadTren, subieronAlTren;
     private Lock lock;
     private Condition esperaTren, maquinista, tren;
-    private Boolean empezo;
+    private Boolean empezo, sigueAbierto;
 
     public Tren() {
         this.capacidadTren = 15;
@@ -19,24 +19,30 @@ public class Tren {
         this.maquinista = lock.newCondition();
         this.tren = lock.newCondition();
         this.empezo = false;
+        this.sigueAbierto = true;
     }
 
-    public void irEnTren() {
+    public boolean irEnTren() throws InterruptedException {
         lock.lock();
         try {
             while (subieronAlTren >= capacidadTren || empezo) {
-                System.out.println("El visitante " + Thread.currentThread().getName() + " esta esperando al tren.");
+                System.out.println("El visitante " + Thread.currentThread().getName()
+                        + " esta esperando al tren para ir al Faro-Mirador.");
                 esperaTren.await();
             }
-            subieronAlTren++;
-            System.out.println("El visitante " + Thread.currentThread().getName() + " se ha subido al tren.");
-            if (subieronAlTren == capacidadTren) {
-                maquinista.signal();
+            if (sigueAbierto) {
+                subieronAlTren++;
+                System.out.println("El visitante " + Thread.currentThread().getName()
+                        + " se ha subido al tren para ir al Faro-Mirador.");
+                if (subieronAlTren == capacidadTren) {
+                    maquinista.signal();
+                }
+                tren.await();
+            } else {
+                System.out.println(
+                        "El visitante " + Thread.currentThread().getName() + " NO puede subir al tren dado que cerro.");
             }
-            tren.await();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            return sigueAbierto;
 
         } finally {
             lock.unlock();
@@ -103,7 +109,10 @@ public class Tren {
         try {
             System.out.println(ColoresSout.BOLD + ColoresSout.PASTEL_PURPLE + "HA CERRADO EL RECORRIDO EN TREN"
                     + ColoresSout.RESET);
+            sigueAbierto = false;
+            subieronAlTren = 0;
             tren.signalAll();
+            esperaTren.signalAll();
 
         } catch (Exception e) {
             e.printStackTrace();

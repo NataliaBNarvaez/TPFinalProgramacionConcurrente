@@ -16,14 +16,14 @@ public class Gomon implements Runnable {
 
     public void run() {
         try {
-            while (true) {
+            while (parque.puedeContinuar()) {
                 if (tipo == 1) {
                     parque.carreraGomones.esperaIndiv();
                 } else {
                     parque.carreraGomones.esperaDoble();
                 }
                 parque.carreraGomones.carrera(tipo);
-                Thread.sleep(random.nextInt(4000, 5000));
+                Thread.sleep(random.nextInt(3000, 4000));
                 parque.carreraGomones.terminarCarrera(tipo);
             }
 

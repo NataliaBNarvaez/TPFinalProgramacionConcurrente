@@ -8,6 +8,7 @@ public class ColoresSout {
     public static final String BLUE = "\u001B[34m"; // En Snorkell y bicis
     public static final String PURPLE = "\u001B[35m"; // Anuncio bajar del tren y restaurante
     public static final String CYAN = "\u001B[36m"; // En CarreraGomones
+    public static final String PINK = "\u001B[38;2;255;105;180m"; // Anuncio Stand de bicis
     public static final String PASTEL_PINK = "\u001B[38;2;255;179;186m";// anuncio bicis
     public static final String PASTEL_ORANGE = "\u001B[38;2;255;223;186m";// Anuncio inicio carrera
     public static final String PASTEL_YELLOW = "\u001B[38;2;255;255;186m";

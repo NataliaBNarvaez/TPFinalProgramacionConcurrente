@@ -16,8 +16,9 @@ public class Visitante implements Runnable {
     public void run() {
         try {
             if (elegir() == 1) { // elige llegar en tour folklorico
-                parque.colectivo.irEnColectivo();
-                parque.colectivo.bajarseDelColectivo();
+                if (parque.colectivo.irEnColectivo()) {
+                    parque.colectivo.bajarseDelColectivo();
+                }
             } // sino llega de forma particular
 
             parque.entrarAlParque();
@@ -27,7 +28,7 @@ public class Visitante implements Runnable {
             while (continuar) {
                 Random random = new Random();
                 int atraccionAVisitar = random.nextInt(5);
-                switch (3) {
+                switch (4) {
                     case 0: // Visita la tienda
                         if (parque.shop.adquirirSouvenir()) {
                             if (elegir() == 0) {
@@ -53,43 +54,44 @@ public class Visitante implements Runnable {
                         if (!almorzo) {
                             if (parque.restaurantes[restaurante].entrarAComer("almorzar")) {
                                 almorzo = true;
-                                Thread.sleep(random.nextInt(4));
+                                Thread.sleep(random.nextInt(4000));
                                 parque.restaurantes[restaurante].salirDelRestaurante();
                             }
                         } else if (!merendo) {
                             if (parque.restaurantes[restaurante].entrarAComer("merendar")) {
                                 merendo = true;
-                                Thread.sleep(random.nextInt(2));
+                                Thread.sleep(random.nextInt(2000));
                                 parque.restaurantes[restaurante].salirDelRestaurante();
                             }
                         }
                         break;
 
                     case 3: // Visita el faro mirador y desciende en tobogan
-                        System.out.println("El visitante " + Thread.currentThread().getName()
-                                + " esta esperando subir");
                         int tobogan = parque.faro.subirEscalera();
-                        System.out.println(ColoresSout.YELLOW + "// El visitante " + Thread.currentThread().getName()
-                                + " se esta tirando por el tobogan " + tobogan + " //" + ColoresSout.RESET);
-                        Thread.sleep(2000);
-                        parque.faro.tirarseDelTobogan(tobogan);
-                        System.out.println("El visitante " + Thread.currentThread().getName()
-                                + " libero un tobogan ");
+                        if (tobogan == 1 || tobogan == 2) {
+                            System.out
+                                    .println(ColoresSout.YELLOW + "// El visitante " + Thread.currentThread().getName()
+                                            + " se esta tirando por el tobogan " + tobogan + " //" + ColoresSout.RESET);
+                            Thread.sleep(2000);
+                            parque.faro.tirarseDelTobogan(tobogan);
+                        }
                         break;
 
                     case 4: // Participa de la carrera de gomones por el rio
                         /*
                          * if (elegir() == 0) {
-                         * parque.standBicis.irEnBici();
+                         * if (parque.standBicis.irEnBici()) {
                          * Thread.sleep(random.nextInt(4000, 7000));
                          * parque.standBicis.dejarBicicleta();
+                         * }
                          * } else {
                          * parque.tren.irEnTren();
                          * parque.tren.bajarseDelTren();
                          * }
                          */
-                        parque.carreraGomones.pedirGomon(elegir() + 1);
-                        parque.carreraGomones.pedirPertenencias();
+                        if (parque.carreraGomones.pedirGomon(elegir() + 1)) {
+                            parque.carreraGomones.pedirPertenencias();
+                        }
                         break;
 
                     default:

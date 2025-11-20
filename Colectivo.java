@@ -9,7 +9,7 @@ public class Colectivo {
     private int capacidadColectivo, subieronAlCole;
     private Lock lock;
     private Condition esperaColectivo, colectivero, cole;
-    private Boolean empezo;
+    private Boolean empezo, sigueAbierto;
 
     public Colectivo() {
         this.capacidadColectivo = 25;
@@ -19,9 +19,10 @@ public class Colectivo {
         this.colectivero = lock.newCondition();
         this.cole = lock.newCondition();
         this.empezo = false;
+        this.sigueAbierto = true;
     }
 
-    public void irEnColectivo() {
+    public boolean irEnColectivo() throws InterruptedException {
         lock.lock();
         try {
             while (subieronAlCole >= capacidadColectivo || empezo) {
@@ -30,16 +31,20 @@ public class Colectivo {
                                 + " esta esperando al colectivo folklorico.");
                 esperaColectivo.await();
             }
-            subieronAlCole++;
-            System.out.println(ColoresSout.PASTEL_MINT + "El visitante " + Thread.currentThread().getName()
-                    + " se ha subido al tour en el colectivo folklorico." + ColoresSout.RESET);
-            if (subieronAlCole == capacidadColectivo) {
-                colectivero.signal();
+            if (sigueAbierto) {
+                subieronAlCole++;
+                System.out.println(ColoresSout.PASTEL_MINT + "El visitante " + Thread.currentThread().getName()
+                        + " se ha subido al tour en el colectivo folklorico." + ColoresSout.RESET);
+                if (subieronAlCole == capacidadColectivo) {
+                    colectivero.signal();
+                }
+                cole.await();
+            } else {
+                System.out.println(ColoresSout.PASTEL_MINT + "El visitante " + Thread.currentThread().getName()
+                        + " NO puede subir al tour en el colectivo folklorico ya que cerro el ingreso."
+                        + ColoresSout.RESET);
             }
-            cole.await();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            return sigueAbierto;
 
         } finally {
             lock.unlock();
@@ -109,7 +114,10 @@ public class Colectivo {
             System.out.println(ColoresSout.BOLD + ColoresSout.PASTEL_GREEN
                     + "HA CERRADO EL RECORRIDO EN COLECTIVO FOLKLORICO"
                     + ColoresSout.RESET);
+            empezo = false;
+            subieronAlCole = 0;
             cole.signalAll();
+            esperaColectivo.signalAll();
 
         } catch (Exception e) {
             e.printStackTrace();
