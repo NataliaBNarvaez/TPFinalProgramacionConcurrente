@@ -13,7 +13,6 @@ public class AdminTobogan implements Runnable {
             while (parque.puedeContinuar()) {
                 parque.faro.asignarTobogan();
                 System.out.println("El administrador del tobogan asigno un tobogan...");
-                Thread.sleep(500);
             }
 
         } catch (Exception e) {

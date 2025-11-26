@@ -28,14 +28,10 @@ public class Visitante implements Runnable {
             while (continuar) {
                 Random random = new Random();
                 int atraccionAVisitar = random.nextInt(5);
-                switch (4) {
+                switch (atraccionAVisitar) {
                     case 0: // Visita la tienda
                         if (parque.shop.adquirirSouvenir()) {
-                            if (elegir() == 0) {
-                                parque.shop.pagarEnCaja1();
-                            } else {
-                                parque.shop.pagarEnCaja2();
-                            }
+                            parque.shop.pagarEnCaja();
                         }
                         break;
 
@@ -54,13 +50,13 @@ public class Visitante implements Runnable {
                         if (!almorzo) {
                             if (parque.restaurantes[restaurante].entrarAComer("almorzar")) {
                                 almorzo = true;
-                                Thread.sleep(random.nextInt(4000));
+                                Thread.sleep(random.nextInt(6000));
                                 parque.restaurantes[restaurante].salirDelRestaurante();
                             }
                         } else if (!merendo) {
                             if (parque.restaurantes[restaurante].entrarAComer("merendar")) {
                                 merendo = true;
-                                Thread.sleep(random.nextInt(2000));
+                                Thread.sleep(random.nextInt(5000));
                                 parque.restaurantes[restaurante].salirDelRestaurante();
                             }
                         }
@@ -74,21 +70,20 @@ public class Visitante implements Runnable {
                                             + " se esta tirando por el tobogan " + tobogan + " //" + ColoresSout.RESET);
                             Thread.sleep(2000);
                             parque.faro.tirarseDelTobogan(tobogan);
+                            Thread.sleep(3000);
                         }
                         break;
 
                     case 4: // Participa de la carrera de gomones por el rio
-                        /*
-                         * if (elegir() == 0) {
-                         * if (parque.standBicis.irEnBici()) {
-                         * Thread.sleep(random.nextInt(4000, 7000));
-                         * parque.standBicis.dejarBicicleta();
-                         * }
-                         * } else {
-                         * parque.tren.irEnTren();
-                         * parque.tren.bajarseDelTren();
-                         * }
-                         */
+                        if (elegir() == 0) { // Decide ir en bicicleta
+                            if (parque.standBicis.irEnBici()) {
+                                Thread.sleep(random.nextInt(4000, 7000));
+                                parque.standBicis.dejarBicicleta();
+                            }
+                        } else {// Decide ir en tren
+                            parque.tren.irEnTren();
+                            parque.tren.bajarseDelTren();
+                        }
                         if (parque.carreraGomones.pedirGomon(elegir() + 1)) {
                             parque.carreraGomones.pedirPertenencias();
                         }
@@ -111,5 +106,4 @@ public class Visitante implements Runnable {
         Random random = new Random();
         return random.nextInt(2);
     }
-
 }

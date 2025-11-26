@@ -34,9 +34,9 @@ public class Parque {
         this.shop = new Shop();
         this.snorkell = new Snorkel(6);
         this.restaurantes[0] = new Restaurante(1, 3);
-        this.restaurantes[1] = new Restaurante(2, 4);
-        this.restaurantes[2] = new Restaurante(3, 5);
-        this.faro = new Faro(9);
+        this.restaurantes[1] = new Restaurante(2, 2);
+        this.restaurantes[2] = new Restaurante(3, 4);
+        this.faro = new Faro(5);
         this.tren = new Tren();
         this.standBicis = new StandDeBicis(11);
         this.carreraGomones = new CarreraGomones(indiv, dob, 6);
@@ -45,7 +45,7 @@ public class Parque {
         // Condiciones para la apertura y cierre del parque
         this.lock = new ReentrantLock();
         this.esperaApertura = lock.newCondition();
-        this.controlador = lock.newCondition(); // ???
+        this.controlador = lock.newCondition();
         this.abierto = false;
         this.comenzarActividad = false;
     }

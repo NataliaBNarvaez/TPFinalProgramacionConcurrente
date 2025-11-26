@@ -2,6 +2,7 @@ package TPOConcurrente;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Semaphore;
 
 /*
 Restaurante: en el pago del acceso al Parque se encuentra incluido el almuerzo y la 
@@ -12,14 +13,17 @@ atendidas en orden de llegada. Los restaurantes tienen habilitada una cola de es
 --->BLOCKING QUEUE
 */
 public class Restaurante {
-    private int nroRestaurante;
+    private int nroRestaurante, capacidad;
     private BlockingQueue<String> restaurante;
     private Boolean sigueAbierto, aux;
+    private Semaphore comer;
 
-    public Restaurante(int nro, int capacidad) {
+    public Restaurante(int nro, int cap) {
         this.nroRestaurante = nro;
+        this.capacidad = cap;
         this.restaurante = new ArrayBlockingQueue(capacidad);
         this.sigueAbierto = true;
+        this.comer = new Semaphore(capacidad);
     }
 
     public boolean entrarAComer(String consumo) throws InterruptedException {
@@ -27,6 +31,7 @@ public class Restaurante {
                 Thread.currentThread().getName() + " esta esperando para entrar al restaurante " + nroRestaurante);
         if (aux = puedeEntrar()) {
             restaurante.put("entro");
+            comer.acquire();
             System.out.println(ColoresSout.PURPLE +
                     Thread.currentThread().getName() + " entro al restaurante " + nroRestaurante + " para "
                     + consumo + ColoresSout.RESET);
@@ -40,6 +45,7 @@ public class Restaurante {
 
     public void salirDelRestaurante() throws InterruptedException {
         System.out.println(Thread.currentThread().getName() + " salio del restaurante " + nroRestaurante);
+        comer.release();
         restaurante.take();
     }
 
@@ -47,10 +53,10 @@ public class Restaurante {
         return sigueAbierto;
     }
 
-    public void cerrarRestaurante() {
+    public void cerrarRestaurante() throws InterruptedException {
         System.out.println(ColoresSout.BOLD + ColoresSout.PURPLE
                 + "HA CERRADO EL RESTAURANTE " + nroRestaurante + ColoresSout.RESET);
-        restaurante.clear();
         sigueAbierto = false;
+        restaurante.clear();
     }
 }

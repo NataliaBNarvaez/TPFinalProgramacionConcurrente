@@ -39,21 +39,23 @@ public class Faro {
     public int subirEscalera() throws InterruptedException {
         lock.lock();
         try {
-            System.out.println("El visitante " + Thread.currentThread().getName()
-                    + " esta esperando subir a la escalera del Faro-Mirador");
             while (enEscalera >= capacidad) {
+                System.out.println("El visitante " + Thread.currentThread().getName()
+                        + " esta esperando subir a la escalera del Faro-Mirador");
                 esperaSubir.await();
             }
-            if (sigueAbierto) { // para cuando cerro que se vayan
+            if (sigueAbierto) {
                 enEscalera++;
                 System.out.println("El visitante " + Thread.currentThread().getName()
                         + " se subio a la escalera y espera un tobogan, VISITANTES ESPERANDO en escalera: "
                         + enEscalera);
-                adminTobogan.signal();
+                if (enEscalera == 1) { // unicamente avisa el primero que desea tirarse
+                    adminTobogan.signal();
+                }
                 while (toboganAsignado == 0) {
                     esperaTirarse.await();
                 }
-                if (sigueAbierto) { // si cerro que no se tiren xq el admin ya se fue
+                if (sigueAbierto) {
                     System.out
                             .println("Tobogan asignado " + toboganAsignado + " a " + Thread.currentThread().getName());
                     aux = toboganAsignado;
@@ -90,8 +92,9 @@ public class Faro {
                 tobogan2Libre = false;
                 toboganAsignado = 2;
             }
-            enEscalera--;
             esperaTirarse.signal();
+            enEscalera--;
+            esperaSubir.signal();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -110,9 +113,8 @@ public class Faro {
                 tobogan2Libre = true;
             }
             System.out.println("El visitante " + Thread.currentThread().getName()
-                    + " libero un tobogan ");
+                    + " libero un tobogan " + enEscalera);
             hayToboganLibre.signal();
-            esperaSubir.signal();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,6 +135,8 @@ public class Faro {
             esperaSubir.signalAll();
             esperaTirarse.signalAll();
             adminTobogan.signal();
+            tobogan1Libre = true;
+            hayToboganLibre.signal();
 
         } catch (Exception e) {
             e.printStackTrace();
