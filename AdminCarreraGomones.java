@@ -1,18 +1,18 @@
 package TPOConcurrente;
 
-public class Maquinista implements Runnable {
+public class AdminCarreraGomones implements Runnable {
+
     private Parque parque;
 
-    public Maquinista(Parque elParque) {
+    public AdminCarreraGomones(Parque elParque) {
         this.parque = elParque;
     }
 
     public void run() {
         try {
             while (parque.puedeContinuar()) {
-                parque.tren.arrancarRecorridoTren();
-                Thread.sleep(5000);
-                parque.tren.terminarRecorridoTren();
+                parque.carreraGomones.iniciarCarrera();
+                parque.carreraGomones.esperaFinalizarCarrera();
             }
 
         } catch (Exception e) {

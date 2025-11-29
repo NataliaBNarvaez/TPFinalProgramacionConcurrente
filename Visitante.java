@@ -15,11 +15,11 @@ public class Visitante implements Runnable {
 
     public void run() {
         try {
-            if (elegir() == 1) { // elige llegar en tour folklorico
-                if (parque.colectivo.irEnColectivo()) {
-                    parque.colectivo.bajarseDelColectivo();
-                }
-            } // sino llega de forma particular
+            // if (elegir() == 1) { // elige llegar en tour folklorico
+            // if (parque.colectivo.irEnColectivo()) {
+            // parque.colectivo.bajarseDelColectivo();
+            // }
+            // } // sino llega de forma particular
 
             parque.entrarAlParque();
             continuar = parque.puedeEntrar();
@@ -28,7 +28,8 @@ public class Visitante implements Runnable {
             while (continuar) {
                 Random random = new Random();
                 int atraccionAVisitar = random.nextInt(5);
-                switch (atraccionAVisitar) {
+
+                switch (4) {
                     case 0: // Visita la tienda
                         if (parque.shop.adquirirSouvenir()) {
                             parque.shop.pagarEnCaja();
@@ -72,18 +73,23 @@ public class Visitante implements Runnable {
                             parque.faro.tirarseDelTobogan(tobogan);
                             Thread.sleep(3000);
                         }
-                        break;
 
-                    case 4: // Participa de la carrera de gomones por el rio
+                        // del de abajo
                         if (elegir() == 0) { // Decide ir en bicicleta
                             if (parque.standBicis.irEnBici()) {
                                 Thread.sleep(random.nextInt(4000, 7000));
                                 parque.standBicis.dejarBicicleta();
                             }
                         } else {// Decide ir en tren
-                            parque.tren.irEnTren();
-                            parque.tren.bajarseDelTren();
+                            if (parque.tren.irEnTren()) {
+                                parque.tren.bajarseDelTren();
+                            }
                         }
+
+                        break;
+
+                    case 4: // Participa de la carrera de gomones por el rio
+
                         if (parque.carreraGomones.pedirGomon(elegir() + 1)) {
                             parque.carreraGomones.pedirPertenencias();
                         }

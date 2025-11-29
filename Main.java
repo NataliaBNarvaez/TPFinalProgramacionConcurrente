@@ -1,4 +1,4 @@
-// TPO Programacion Concurrente (Cursada 2022) ~ Natalia Narvaez FAI-3198
+// TPO Programacion Concurrente (Cursada 2022) ~ Natalia Narvaez FAI-3198.
 package TPOConcurrente;
 
 public class Main {
@@ -16,10 +16,12 @@ public class Main {
         Thread[] hilosVisitantes = new Thread[cantVisitantes1];
         Thread controladorParque = new Thread(new ControladorParque(parque));
         Thread adminTobogan = new Thread(new AdminTobogan(parque));
+        Thread adminCarreraGomones = new Thread(new AdminCarreraGomones(parque));
         Thread maquinista = new Thread(new Maquinista(parque));
         Thread colectivero = new Thread(new Colectivero(parque));
         controladorParque.start();
         adminTobogan.start();
+        adminCarreraGomones.start();
         maquinista.start();
         colectivero.start();
 

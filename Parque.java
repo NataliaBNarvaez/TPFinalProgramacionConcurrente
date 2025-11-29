@@ -107,6 +107,7 @@ public class Parque {
             faro.cerrarFaro();
             carreraGomones.cerrarCarrera();
             standBicis.cerrarStandBicis();
+            tren.cerrarTren();
 
         } catch (Exception e) {
             e.printStackTrace();
