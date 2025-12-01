@@ -2,11 +2,6 @@ package TPOConcurrente;
 
 import java.util.concurrent.Semaphore;
 
-/*
-En el shop se pueden adquirir suvenires de distinta clase, los cuales se pueden abonar en 
-una de las dos cajas disponibles. 
---->SEMAFOROS
-*/
 public class Shop {
     private Semaphore cajas, tienda;
     private boolean sigueAbierto, aux;

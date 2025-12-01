@@ -15,11 +15,11 @@ public class Visitante implements Runnable {
 
     public void run() {
         try {
-            // if (elegir() == 1) { // elige llegar en tour folklorico
-            // if (parque.colectivo.irEnColectivo()) {
-            // parque.colectivo.bajarseDelColectivo();
-            // }
-            // } // sino llega de forma particular
+            if (elegir() == 1) { // elige llegar en tour folklorico
+                if (parque.colectivo.irEnColectivo()) {
+                    parque.colectivo.bajarseDelColectivo();
+                }
+            } // sino llega de forma particular
 
             parque.entrarAlParque();
             continuar = parque.puedeEntrar();
@@ -29,7 +29,7 @@ public class Visitante implements Runnable {
                 Random random = new Random();
                 int atraccionAVisitar = random.nextInt(5);
 
-                switch (4) {
+                switch (2) {
                     case 0: // Visita la tienda
                         if (parque.shop.adquirirSouvenir()) {
                             parque.shop.pagarEnCaja();
@@ -37,12 +37,12 @@ public class Visitante implements Runnable {
                         break;
 
                     case 1: // Hace snorkel
-                        if (parque.snorkell.adquirirEquipoSnorkell()) {
+                        if (parque.snorkell.adquirirEquipoSnorkel()) {
                             System.out.println(ColoresSout.BLUE + "~~ El visitante " +
                                     Thread.currentThread().getName()
                                     + " esta haciendo snorkell ~~" + ColoresSout.RESET);
                             Thread.sleep(3000);
-                            parque.snorkell.devolverEquipoSnorkell();
+                            parque.snorkell.devolverEquipoSnorkel();
                         }
                         break;
 
@@ -71,10 +71,11 @@ public class Visitante implements Runnable {
                                             + " se esta tirando por el tobogan " + tobogan + " //" + ColoresSout.RESET);
                             Thread.sleep(2000);
                             parque.faro.tirarseDelTobogan(tobogan);
-                            Thread.sleep(3000);
+                            // Thread.sleep(3000);
                         }
+                        break;
 
-                        // del de abajo
+                    case 4: // Participa de la carrera de gomones por el rio
                         if (elegir() == 0) { // Decide ir en bicicleta
                             if (parque.standBicis.irEnBici()) {
                                 Thread.sleep(random.nextInt(4000, 7000));
@@ -85,11 +86,6 @@ public class Visitante implements Runnable {
                                 parque.tren.bajarseDelTren();
                             }
                         }
-
-                        break;
-
-                    case 4: // Participa de la carrera de gomones por el rio
-
                         if (parque.carreraGomones.pedirGomon(elegir() + 1)) {
                             parque.carreraGomones.pedirPertenencias();
                         }
@@ -104,7 +100,6 @@ public class Visitante implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         parque.retirarse();
     }
 

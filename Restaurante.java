@@ -2,36 +2,28 @@ package TPOConcurrente;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Semaphore;
+//import java.util.concurrent.Semaphore;
 
-/*
-Restaurante: en el pago del acceso al Parque se encuentra incluido el almuerzo y la 
-merienda. Existen tres restaurantes, pero solamente se puede consumir un almuerzo 
-y una merienda en cualquiera de ellos. Puede tomar el almuerzo en un restaurante y 
-la  merienda  en  otro.  Los  restaurantes  tienen  capacidad  limitada.  Las  personas  son 
-atendidas en orden de llegada. Los restaurantes tienen habilitada una cola de espera. 
---->BLOCKING QUEUE
-*/
 public class Restaurante {
     private int nroRestaurante, capacidad;
     private BlockingQueue<String> restaurante;
     private Boolean sigueAbierto, aux;
-    private Semaphore comer;
+    // private Semaphore comer;
 
     public Restaurante(int nro, int cap) {
         this.nroRestaurante = nro;
         this.capacidad = cap;
         this.restaurante = new ArrayBlockingQueue(capacidad);
         this.sigueAbierto = true;
-        this.comer = new Semaphore(capacidad);
+        // this.comer = new Semaphore(capacidad);
     }
 
     public boolean entrarAComer(String consumo) throws InterruptedException {
         System.out.println(
                 Thread.currentThread().getName() + " esta esperando para entrar al restaurante " + nroRestaurante);
+        restaurante.put("entro");
         if (aux = puedeEntrar()) {
-            restaurante.put("entro");
-            comer.acquire();
+            // comer.acquire();
             System.out.println(ColoresSout.PURPLE +
                     Thread.currentThread().getName() + " entro al restaurante " + nroRestaurante + " para "
                     + consumo + ColoresSout.RESET);
@@ -39,13 +31,14 @@ public class Restaurante {
             System.out.println(
                     Thread.currentThread().getName() + " NO puede entrar al restaurante " + nroRestaurante + " para "
                             + consumo + " porque cerro." + ColoresSout.RESET);
+            restaurante.take();
         }
         return aux;
     }
 
     public void salirDelRestaurante() throws InterruptedException {
         System.out.println(Thread.currentThread().getName() + " salio del restaurante " + nroRestaurante);
-        comer.release();
+        // comer.release();
         restaurante.take();
     }
 
@@ -53,10 +46,9 @@ public class Restaurante {
         return sigueAbierto;
     }
 
-    public void cerrarRestaurante() throws InterruptedException {
+    public synchronized void cerrarRestaurante() throws InterruptedException {
         System.out.println(ColoresSout.BOLD + ColoresSout.PURPLE
                 + "HA CERRADO EL RESTAURANTE " + nroRestaurante + ColoresSout.RESET);
         sigueAbierto = false;
-        restaurante.clear();
     }
 }

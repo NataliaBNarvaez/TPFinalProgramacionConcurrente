@@ -5,17 +5,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.TimeUnit;
 
-/*
-Al parque se puede acceder en forma particular o por tour, en el caso del tour, se trasladan 
-a través de colectivos folklóricos con una capacidad no mayor a 25 personas, que llegan 
-a  un  estacionamiento  destinado  para  tal  fin.  Al  momento  de  arribar  al  parque  se  le 
-entregarán pulseras a los visitantes que le permitirán el acceso al parque. 
-El ingreso al parque está indicado a través del paso de k molinetes. Una vez ingresado, el 
-visitante puede optar por ir al shop o disfrutar de las actividades del parque.
-
-El complejo se encuentra abierto para el ingreso de 09:00 a 17:00hs. Considere que las 
-actividades cierran a las 18.00 hrs. 
-*/
 public class Parque {
     Shop shop;
     Snorkel snorkell;
@@ -75,7 +64,7 @@ public class Parque {
     public void cerrarIngresoParque() {
         lock.lock();
         try {
-            controlador.await(15, TimeUnit.SECONDS); // cada hora dura 3 segundos
+            controlador.await(15, TimeUnit.SECONDS); // cada hora dura aprox. 3 segundos
             System.out
                     .println(ColoresSout.BOLD + ColoresSout.CYAN + " --||   CERRO EL INGRESO AL PARQUE   ||-- "
                             + ColoresSout.RESET);
@@ -100,7 +89,7 @@ public class Parque {
                             + " -||   CERRARON LAS ACTIVIDADES DEL PARQUE, RETIRARSE LUEGO DE TERMINAR LA ACTIVIDAD ACTUAL   ||- "
                             + ColoresSout.RESET);
             shop.cerrarShop();
-            snorkell.cerrarSnorkell();
+            snorkell.cerrarSnorkel();
             restaurantes[0].cerrarRestaurante();
             restaurantes[1].cerrarRestaurante();
             restaurantes[2].cerrarRestaurante();

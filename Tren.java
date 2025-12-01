@@ -23,6 +23,7 @@ public class Tren {
         this.aux = true;
     }
 
+    // Metodos para los visitantes
     public boolean irEnTren() throws InterruptedException {
         lock.lock();
         try {
@@ -71,6 +72,7 @@ public class Tren {
         }
     }
 
+    // Metodos para el maquinista
     public void arrancarRecorridoTren() {
         lock.lock();
         try {
@@ -97,7 +99,6 @@ public class Tren {
                     + ColoresSout.RESET);
             tren.signalAll();
             empezo = false;
-            esperaTren.signalAll();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,6 +108,7 @@ public class Tren {
         }
     }
 
+    // Metodo para el controladorParque
     public void cerrarTren() {
         lock.lock();
         try {
