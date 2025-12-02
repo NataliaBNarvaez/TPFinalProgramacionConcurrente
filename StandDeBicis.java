@@ -18,6 +18,7 @@ public class StandDeBicis {
         this.sigueAbierto = true;
     }
 
+    // Metodos para los visitantes
     public boolean irEnBici() throws InterruptedException {
         lock.lock();
         try {
@@ -57,6 +58,7 @@ public class StandDeBicis {
         }
     }
 
+    // Metodo para el controladorParque
     public void cerrarStandBicis() {
         lock.lock();
         try {

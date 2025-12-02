@@ -29,7 +29,7 @@ public class Faro {
     public int subirEscalera() throws InterruptedException {
         lock.lock();
         try {
-            while (enEscalera >= capacidad) {
+            while (enEscalera >= capacidad && sigueAbierto) {
                 System.out.println("El visitante " + Thread.currentThread().getName()
                         + " esta esperando subir a la escalera del Faro-Mirador");
                 esperaSubir.await();
@@ -75,7 +75,7 @@ public class Faro {
                 tobogan2Libre = true;
             }
             System.out.println("El visitante " + Thread.currentThread().getName()
-                    + " libero un tobogan " + enEscalera);
+                    + " libero un tobogan ");
             hayToboganLibre.signal();
 
         } catch (Exception e) {
@@ -123,7 +123,7 @@ public class Faro {
                     + "HA CERRADO EL FARO-MIRADOR CON DESCENSO EN TOBOGAN" + ColoresSout.RESET);
             sigueAbierto = false;
             toboganAsignado = 7; // numero aleatorio para que salgan del while de toboganAsignado
-            enEscalera = 0; // permite que salgan de los while de espera
+            enEscalera = 0;
             esperaSubir.signalAll();
             esperaTirarse.signalAll();
             adminTobogan.signal();

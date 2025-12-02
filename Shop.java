@@ -12,6 +12,7 @@ public class Shop {
         this.sigueAbierto = true;
     }
 
+    // Metodos para los visitantes
     public boolean adquirirSouvenir() throws InterruptedException {
         if (aux = puedeEntrar()) {
             System.out.println("El visitante " + Thread.currentThread().getName() + " esta eligiendo un souvenir");
@@ -38,6 +39,7 @@ public class Shop {
         return aux;
     }
 
+    // Metodo para el controladorParque
     public void cerrarShop() throws InterruptedException {
         tienda.acquire();
         System.out.println(

@@ -22,6 +22,7 @@ public class Colectivo {
         this.sigueAbierto = true;
     }
 
+    // Metodos para los visitantes
     public boolean irEnColectivo() throws InterruptedException {
         lock.lock();
         try {
@@ -73,6 +74,7 @@ public class Colectivo {
         }
     }
 
+    // Metodos para el hilo Colectivero
     public void arrancarTourColectivo() {
         lock.lock();
         try {

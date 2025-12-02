@@ -13,6 +13,7 @@ public class Snorkel {
         this.sigueAbierto = true;
     }
 
+    // Metodos para los visitantes
     public synchronized boolean adquirirEquipoSnorkel() throws InterruptedException {
         while (equiposDeSnorkel <= 0 && sigueAbierto) {
             System.out.println("El visitante " + Thread.currentThread().getName()
@@ -36,6 +37,7 @@ public class Snorkel {
         notifyAll();
     }
 
+    // Metodo para el controladorParque
     public synchronized void cerrarSnorkel() {
         System.out.println(ColoresSout.BOLD + ColoresSout.BLUE + "HA CERRADO EL STAND DE SNORKEL" + ColoresSout.RESET);
         sigueAbierto = false;

@@ -18,6 +18,7 @@ public class Restaurante {
         // this.comer = new Semaphore(capacidad);
     }
 
+    // Metodos para los visitantes
     public boolean entrarAComer(String consumo) throws InterruptedException {
         System.out.println(
                 Thread.currentThread().getName() + " esta esperando para entrar al restaurante " + nroRestaurante);
@@ -46,6 +47,7 @@ public class Restaurante {
         return sigueAbierto;
     }
 
+    // Metodo para el controladorParque
     public synchronized void cerrarRestaurante() throws InterruptedException {
         System.out.println(ColoresSout.BOLD + ColoresSout.PURPLE
                 + "HA CERRADO EL RESTAURANTE " + nroRestaurante + ColoresSout.RESET);

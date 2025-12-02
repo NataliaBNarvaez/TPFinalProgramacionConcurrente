@@ -189,19 +189,13 @@ public class CarreraGomones {
     // Metodos para el control de los gomones (espera a ser llamados y comienzo de
     // la carrera)
     public void esperaIndiv() throws InterruptedException {
-        System.out.println(
-                ColoresSout.BLUE + "--- GOMON " + Thread.currentThread().getName() + " ESTA ESPERANDO "
-                        + ColoresSout.RESET);
         semIndividual.acquire();
         System.out.println(
-                ColoresSout.PURPLE + "\"--- GOMON " + Thread.currentThread().getName() + " FUE LLAMADO "
+                ColoresSout.PURPLE + "\"--- GOMON INDIVIDUAL" + Thread.currentThread().getName() + " FUE LLAMADO "
                         + ColoresSout.RESET);
     }
 
     public void esperaDoble() throws InterruptedException {
-        System.out.println(
-                ColoresSout.BLUE + "--- GOMON DOBLE" + Thread.currentThread().getName() + " ESTA ESPERANDO "
-                        + ColoresSout.RESET);
         semDoble.acquire();
         System.out.println(
                 ColoresSout.PURPLE + "--- GOMON DOBLE" + Thread.currentThread().getName() + " FUE LLAMADO "
@@ -253,7 +247,7 @@ public class CarreraGomones {
     }
 
     // -------------------------------------------------------------------------------------------------//
-    // Metodos para AdminCarreraGomones y cierre de la actividad
+    // Metodos para AdminCarreraGomones
     public void iniciarCarrera() {
         lock.lock();
         try {
@@ -314,6 +308,8 @@ public class CarreraGomones {
         }
     }
 
+    // -------------------------------------------------------------------------------------------------//
+    // Metodo para el hilo controladorParque
     public void cerrarCarrera() {
         lock.lock();
         try {

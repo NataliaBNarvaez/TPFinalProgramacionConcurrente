@@ -20,6 +20,7 @@ public class Parque {
     private boolean abierto, comenzarActividad;
 
     public Parque(int indiv, int dob) {
+        // Actividades del parque
         this.shop = new Shop();
         this.snorkell = new Snorkel(6);
         this.restaurantes[0] = new Restaurante(1, 3);
@@ -39,10 +40,7 @@ public class Parque {
         this.comenzarActividad = false;
     }
 
-    public int recibirPulseraYPasarMolinete() {
-        return nro++;
-    }
-
+    // Metodos del controladorParque
     public void abrirParque() {
         lock.lock();
         try {
@@ -81,7 +79,7 @@ public class Parque {
     public void cerrarActividades() {
         lock.lock();
         try {
-            controlador.await(25, TimeUnit.SECONDS);
+            controlador.await(10, TimeUnit.SECONDS);
             comenzarActividad = false;
             esperaApertura.signalAll(); // para que los q llegaron tarde no queden trabados por siempre
             System.out
@@ -106,6 +104,7 @@ public class Parque {
         }
     }
 
+    // Metodos para los visitantes
     public void entrarAlParque() {
         lock.lock();
         try {
@@ -127,6 +126,17 @@ public class Parque {
         }
     }
 
+    public int recibirPulseraYPasarMolinete() {
+        return nro++;
+    }
+
+    public void retirarse() {
+        System.out.println(ColoresSout.PASTEL_PEACH + "__ El visitante " + Thread.currentThread().getName()
+                + " se ha retirado del parque __" + ColoresSout.RESET);
+    }
+
+    // Metodos que usaran multiples hilos para verificar si el parque sigue
+    // abierto o si aun se puede entrar
     public boolean puedeEntrar() throws InterruptedException {
         lock.lock();
         try {
@@ -145,10 +155,5 @@ public class Parque {
         } finally {
             lock.unlock();
         }
-    }
-
-    public void retirarse() {
-        System.out.println(ColoresSout.PASTEL_PEACH + "__ El visitante " + Thread.currentThread().getName()
-                + " se ha retirado del parque __" + ColoresSout.RESET);
     }
 }

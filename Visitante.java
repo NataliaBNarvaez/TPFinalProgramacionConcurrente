@@ -29,7 +29,7 @@ public class Visitante implements Runnable {
                 Random random = new Random();
                 int atraccionAVisitar = random.nextInt(5);
 
-                switch (2) {
+                switch (atraccionAVisitar) {
                     case 0: // Visita la tienda
                         if (parque.shop.adquirirSouvenir()) {
                             parque.shop.pagarEnCaja();

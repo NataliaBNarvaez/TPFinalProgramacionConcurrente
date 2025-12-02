@@ -4,7 +4,7 @@ package TPOConcurrente;
 public class Main {
     public static void main(String[] args) {
         int cantVisitantes1 = 10;
-        int cantVisitantes2 = 6;
+        int cantVisitantes2 = 4;
         int individuales = 5;
         int dobles = 5;
         Parque parque = new Parque(individuales, dobles);
@@ -43,26 +43,24 @@ public class Main {
             hilosVisitantes[i].start();
         }
 
+        // Para poder ver que pueden entrar luego de la largada iniciar
         try {
             Thread.sleep(6000);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // Para poder ver que pueden entrar luego de la largada iniciar
         for (int i = 0; i < cantVisitantes2; i++) {
             visitantes[i] = new Visitante(parque);
             hilosVisitantes[i] = new Thread(visitantes[i]);
             hilosVisitantes[i].start();
         }
 
+        // Para poder ver que una vez cerro ya no pueden entrar
         try {
             Thread.sleep(10000);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // Para poder ver que una vez cerro ya no pueden entrar
         for (int i = 0; i < cantVisitantes2; i++) {
             visitantes[i] = new Visitante(parque);
             hilosVisitantes[i] = new Thread(visitantes[i]);
