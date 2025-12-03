@@ -4,7 +4,7 @@ package TPOConcurrente;
 public class Main {
     public static void main(String[] args) {
         int cantVisitantes1 = 10;
-        int cantVisitantes2 = 4;
+        int cantVisitantes2 = 6;
         int individuales = 5;
         int dobles = 5;
         Parque parque = new Parque(individuales, dobles);
