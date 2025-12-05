@@ -12,6 +12,7 @@ public class ControladorParque implements Runnable {
             parque.abrirParque();
             parque.cerrarIngresoParque();
             parque.cerrarActividades();
+            System.out.println(ColoresSout.CYAN + "- El controlador del parque se ha retirado." + ColoresSout.RESET);
 
         } catch (Exception e) {
             e.printStackTrace();

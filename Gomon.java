@@ -22,10 +22,17 @@ public class Gomon implements Runnable {
                 } else {
                     parque.carreraGomones.esperaDoble();
                 }
-                parque.carreraGomones.carrera(tipo);
-                Thread.sleep(random.nextInt(3000, 4000));
-                parque.carreraGomones.terminarCarrera(tipo);
+                if (parque.puedeContinuar()) {
+                    // para que no continuen la ejecucion si fueron despertados porque cerró la
+                    // actividad
+                    parque.carreraGomones.carrera(tipo);
+                    Thread.sleep(random.nextInt(3000, 4000));
+                    parque.carreraGomones.terminarCarrera(tipo);
+                }
             }
+            System.out.println(ColoresSout.PASTEL_PINK +
+                    "- El gomon: " + Thread.currentThread().getName() + " fue guardado en el deposito."
+                    + ColoresSout.RESET);
 
         } catch (Exception e) {
             e.printStackTrace();

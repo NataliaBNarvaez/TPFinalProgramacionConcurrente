@@ -45,19 +45,14 @@ public class Faro {
                 while (toboganAsignado == 0) {
                     esperaTirarse.await();
                 }
-                if (sigueAbierto) {
-                    System.out
-                            .println("Tobogan asignado " + toboganAsignado + " a " + Thread.currentThread().getName());
-                    aux = toboganAsignado;
-                    toboganAsignado = 0;
-                } else {
-                    aux = 0; // al no ser 1 ó 2 no continua con la ejecucion de los metodos del faro
-                    System.out.println(Thread.currentThread().getName() + " No se puede tirar porque cerro el Tobogan");
-                }
+                System.out
+                        .println("Tobogan asignado " + toboganAsignado + " a " + Thread.currentThread().getName());
+                aux = toboganAsignado;
+                toboganAsignado = 0;
             } else {
                 aux = 0;
                 System.out
-                        .println(Thread.currentThread().getName() + " No se puede tirar porque cerro el Faro-Mirador");
+                        .println(Thread.currentThread().getName() + " No se puede subir porque cerro el Faro-Mirador");
             }
             return aux;
 
@@ -87,10 +82,10 @@ public class Faro {
     }
 
     // Metodo para el adminTobogan
-    public void asignarTobogan() {
+    public boolean asignarTobogan() throws InterruptedException {
         lock.lock();
         try {
-            while (enEscalera == 0) {
+            while (enEscalera == 0 && sigueAbierto) {
                 adminTobogan.await();
             }
             while (!tobogan1Libre && !tobogan2Libre) {
@@ -107,8 +102,7 @@ public class Faro {
             enEscalera--;
             esperaSubir.signal();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            return sigueAbierto;
 
         } finally {
             lock.unlock();
@@ -129,6 +123,7 @@ public class Faro {
             adminTobogan.signal();
             tobogan1Libre = true;
             hayToboganLibre.signal();
+            adminTobogan.signal();
 
         } catch (Exception e) {
             e.printStackTrace();

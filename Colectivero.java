@@ -15,6 +15,7 @@ public class Colectivero implements Runnable {
                 parque.colectivo.terminarTourColectivo();
             }
             parque.colectivo.cerrarColectivo();
+            System.out.println(ColoresSout.PASTEL_MINT + "- El colectivero se retira del parque." + ColoresSout.RESET);
 
         } catch (Exception e) {
             e.printStackTrace();

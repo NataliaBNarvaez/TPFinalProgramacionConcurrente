@@ -21,30 +21,33 @@ public class CarreraGomones {
         this.dobles = dob;
         this.doblesEnUso = 0;
         this.gomonesParaLargada = h;
+        this.sigueAbierto = true;
         this.lock = new ReentrantLock(true);
-        this.esperaIndiv = lock.newCondition();
-        this.esperaDoble = lock.newCondition();
-        this.esperaCompa = lock.newCondition();
-        this.largada = lock.newCondition();
-        this.esperaProxLargada = lock.newCondition();
-        this.esperaAdminCarrera = lock.newCondition();
-        this.esperandoCompa = 0;
-        this.terminaron = 0;
-        this.totalVisitParaCarrera = 0;
+        this.controlLargada = new Semaphore(0, true);
         this.salida = new CyclicBarrier(gomonesParaLargada, () -> {
             System.out.println(
                     ColoresSout.UNDERLINE + ColoresSout.RED
                             + "'''''''''''''''' ¡Comienza la carrera! ''''''''''''''''"
                             + ColoresSout.RESET);
         });
+        // Condiciones de espera de los visitantes y variables asociadas
+        this.esperaIndiv = lock.newCondition();
+        this.esperaDoble = lock.newCondition();
+        this.esperaCompa = lock.newCondition();
+        this.largada = lock.newCondition();
+        this.esperaProxLargada = lock.newCondition();
+        this.esperandoCompa = 0;
+        this.terminaron = 0;
+        this.totalVisitParaCarrera = 0;
         this.carreraComenzo = false;
-        this.controlLargada = new Semaphore(0, true);
-        this.semIndividual = new Semaphore(0);
-        this.semDoble = new Semaphore(0);
-        this.semAdminCarrera = new Semaphore(0);
-        this.sigueAbierto = true;
         this.faltaCompaniero = true;
         this.aux = true;
+        // Variables asociadas al adminCarrera
+        this.esperaAdminCarrera = lock.newCondition();
+        this.semAdminCarrera = new Semaphore(0);
+        // Variables asociadas a los gomones
+        this.semIndividual = new Semaphore(0);
+        this.semDoble = new Semaphore(0);
     }
 
     // -------------------------------------------------------------------------------------------------//
@@ -87,19 +90,24 @@ public class CarreraGomones {
                     System.out.println(ColoresSout.RED + Thread.currentThread().getName() + " EN LARGADA INDIVIDUAL"
                             + ColoresSout.RESET);
                     totalVisitParaCarrera++;
-                    esperaAdminCarrera.signal();
+                    if (totalVisitParaCarrera == individualesEnUso + doblesEnUso * 2
+                            && individualesEnUso + doblesEnUso == gomonesParaLargada) {
+                        // Unicamente avisará al admin de carrera el ultimo visitante que faltaba subir
+                        // al gomon
+                        esperaAdminCarrera.signal();
+                    }
                     largada.await();
                     aux = true;
 
                 } else {
-                    System.out.println("NO PUEDE ESPERAR A LA PROXIMA LARGADA YA QUE CERRO LA ACTIVIDAD "
-                            + Thread.currentThread().getName());
+                    System.out.println(Thread.currentThread().getName()
+                            + " No puede seguir esperando ya que cerro la actividad de Carrera de Gomones.");
                     aux = false;
                 }
 
             } else {
-                System.out.println("NO PUEDE ESPERAR MAS UN GOMON YA QUE CERRO LA ACTIVIDAD "
-                        + Thread.currentThread().getName());
+                System.out.println(Thread.currentThread().getName()
+                        + " No puede seguir esperando un gomon ya que cerro la actividad de Carrera de Gomones.");
                 aux = false;
             }
 
@@ -150,25 +158,25 @@ public class CarreraGomones {
                                 ColoresSout.RED + Thread.currentThread().getName() + " EN LARGADA DOBLE"
                                         + ColoresSout.RESET);
                         totalVisitParaCarrera++;
-                        esperaAdminCarrera.signal();
+                        if (totalVisitParaCarrera == individualesEnUso + doblesEnUso * 2
+                                && individualesEnUso + doblesEnUso == gomonesParaLargada) {
+                            // Unicamente avisará al admin de carrera el ultimo visitante que faltaba subir
+                            // al gomon
+                            esperaAdminCarrera.signal();
+                        }
                         largada.await();
                         aux = true;
-
-                    } else {
-                        System.out.println("YA QUE CERRO LA ACTIVIDAD "
-                                + Thread.currentThread().getName());
-                        aux = false;
                     }
 
                 } else {
-                    System.out.println("NO PUEDE ESPERAR A LA PROXIMA LARGADA YA QUE CERRO LA ACTIVIDAD "
-                            + Thread.currentThread().getName());
+                    System.out.println(Thread.currentThread().getName()
+                            + " No puede seguir esperando ya que cerro la actividad de Carrera de Gomones.");
                     aux = false;
                 }
 
             } else {
-                System.out.println("NO PUEDE ESPERAR A LA PROXIMA LARGADA YA QUE CERRO LA ACTIVIDAD "
-                        + Thread.currentThread().getName());
+                System.out.println(Thread.currentThread().getName()
+                        + " No puede seguir esperando un gomon ya que cerro la actividad de Carrera de Gomones.");
                 aux = false;
             }
 
@@ -190,26 +198,37 @@ public class CarreraGomones {
     // la carrera)
     public void esperaIndiv() throws InterruptedException {
         semIndividual.acquire();
-        System.out.println(
-                ColoresSout.PURPLE + "\"--- GOMON INDIVIDUAL" + Thread.currentThread().getName() + " FUE LLAMADO "
-                        + ColoresSout.RESET);
+        /*
+         * Sout para verificar que el gomon que se llama es efectivamente uno de los que
+         * va a la carrera
+         * System.out.println( ColoresSout.PURPLE + "\"--- GOMON INDIVIDUAL " +
+         * Thread.currentThread().getName() + " FUE LLAMADO " + ColoresSout.RESET);
+         */
     }
 
     public void esperaDoble() throws InterruptedException {
         semDoble.acquire();
-        System.out.println(
-                ColoresSout.PURPLE + "--- GOMON DOBLE" + Thread.currentThread().getName() + " FUE LLAMADO "
-                        + ColoresSout.RESET);
     }
 
     public void carrera(int t) throws Exception {
+        // El admin carrera solo deja que lleguen a la barrera una vez estan todos los
+        // visitantes listos
         controlLargada.acquire();
-        System.out.println(Thread.currentThread().getName() + " PERMISO PARA IR A LA CARRERA");
+        if (verificarSigueAbierto()) {
+            salida.await();
+            carreraComenzo = true;
+            System.out.println(ColoresSout.CYAN + "<< El GOMON de " + t + " : " + Thread.currentThread().getName()
+                    + " esta participando en la carrera! >> " + ColoresSout.RESET);
+        }
+    }
 
-        salida.await();
-        carreraComenzo = true;
-        System.out.println(ColoresSout.CYAN + "<< El GOMON de " + t + " : " + Thread.currentThread().getName()
-                + " esta participando en la carrera! >> " + ColoresSout.RESET);
+    private boolean verificarSigueAbierto() throws InterruptedException {
+        lock.lock();
+        try {
+            return sigueAbierto;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void terminarCarrera(int t) {
@@ -234,7 +253,6 @@ public class CarreraGomones {
                 System.out.println(ColoresSout.PASTEL_ORANGE
                         + Thread.currentThread().getName()
                         + " EL GOMON ES EL ULTIMO EN TERMINAR LA CARRERA :(" + ColoresSout.RESET);
-
                 semAdminCarrera.release();
             }
 
@@ -248,26 +266,28 @@ public class CarreraGomones {
 
     // -------------------------------------------------------------------------------------------------//
     // Metodos para AdminCarreraGomones
-    public void iniciarCarrera() {
+    public boolean iniciarCarrera() throws InterruptedException {
         lock.lock();
         try {
-            while (totalVisitParaCarrera < gomonesParaLargada
-                    || totalVisitParaCarrera < individualesEnUso + doblesEnUso * 2) {
+            while ((totalVisitParaCarrera <= gomonesParaLargada) && sigueAbierto) {
+                esperaAdminCarrera.await();
                 System.out.println(ColoresSout.BLUE + Thread.currentThread().getName()
-                        + " ADMIN ESPERA QUE LLEGUEN TODOS: visitantes listos para largar = " + totalVisitParaCarrera
+                        + " ADMIN CHEQUEA QUE HAYAN LLEGADO TODOS: visitantes listos para largar = "
+                        + totalVisitParaCarrera
                         + " total de visitantes para largar = "
                         + (individualesEnUso
                                 + doblesEnUso * 2)
                         + ColoresSout.RESET);
-                esperaAdminCarrera.await();
             }
-            totalVisitParaCarrera = 0;
-            System.out.println(ColoresSout.BLUE + Thread.currentThread().getName()
-                    + " ADMIN PERMITE Q SALGAN " + ColoresSout.RESET);
-            controlLargada.release(gomonesParaLargada);
+            // si ya cerro el parque no debe ejecutar el resto de codigo
+            if (sigueAbierto) {
+                totalVisitParaCarrera = 0;
+                System.out.println(ColoresSout.BLUE + Thread.currentThread().getName()
+                        + " ADMIN PERMITE Q SALGAN " + ColoresSout.RESET);
+                controlLargada.release(gomonesParaLargada);
+            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            return sigueAbierto;
 
         } finally {
             lock.unlock();
@@ -278,7 +298,7 @@ public class CarreraGomones {
         try {
             semAdminCarrera.acquire();
             System.out.println(ColoresSout.BLUE + Thread.currentThread().getName()
-                    + " TERMINA LA CARRERA Y PUEDEN BAJAR DE LOS GOMONES" + ColoresSout.RESET);
+                    + " TERMINO LA CARRERA Y LOS VISITANTES PUEDEN BAJAR DE LOS GOMONES" + ColoresSout.RESET);
             finalizarCarrera();
 
         } catch (Exception e) {
@@ -316,11 +336,23 @@ public class CarreraGomones {
             System.out.println(ColoresSout.BOLD + ColoresSout.RED + "HA CERRADO LA CARRERA DE GOMONES POR EL RIO"
                     + ColoresSout.RESET);
             sigueAbierto = false;
-            carreraComenzo = false;
+            // Esperas de los visitantes
             esperaIndiv.signalAll();
             esperaDoble.signalAll();
             esperaCompa.signalAll();
             esperaProxLargada.signalAll();
+            if (!carreraComenzo) {
+                // si no llego a completarse la cantidad obligo a que se bajen puesto que no
+                // llegaran mas hilos dado que ya se fueron
+                largada.signalAll();
+            }
+            carreraComenzo = false;
+            // Espera de los gomones
+            semIndividual.release(individuales);
+            semDoble.release(dobles);
+            controlLargada.release(gomonesParaLargada);
+            // Espera del adminCarreraGomones
+            esperaAdminCarrera.signal();
 
         } catch (Exception e) {
             e.printStackTrace();

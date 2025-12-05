@@ -11,9 +11,12 @@ public class AdminCarreraGomones implements Runnable {
     public void run() {
         try {
             while (parque.puedeContinuar()) {
-                parque.carreraGomones.iniciarCarrera();
-                parque.carreraGomones.esperaFinalizarCarrera();
+                if (parque.carreraGomones.iniciarCarrera()) {
+                    parque.carreraGomones.esperaFinalizarCarrera();
+                }
             }
+            System.out.println(ColoresSout.RED + "- El Administrador del las Carreras de Gomones se retira del parque."
+                    + ColoresSout.RESET);
 
         } catch (Exception e) {
             e.printStackTrace();

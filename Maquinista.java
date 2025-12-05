@@ -10,10 +10,13 @@ public class Maquinista implements Runnable {
     public void run() {
         try {
             while (parque.puedeContinuar()) {
-                parque.tren.arrancarRecorridoTren();
-                Thread.sleep(5000);
-                parque.tren.terminarRecorridoTren();
+                if (parque.tren.arrancarRecorridoTren()) {
+                    Thread.sleep(5000);
+                    parque.tren.terminarRecorridoTren();
+                }
             }
+            System.out.println(ColoresSout.PASTEL_PURPLE + "- El Maquinista se retira del parque."
+                    + ColoresSout.RESET);
 
         } catch (Exception e) {
             e.printStackTrace();

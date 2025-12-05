@@ -11,9 +11,12 @@ public class AdminTobogan implements Runnable {
     public void run() {
         try {
             while (parque.puedeContinuar()) {
-                parque.faro.asignarTobogan();
-                System.out.println("El administrador del tobogan asigno un tobogan...");
+                if (parque.faro.asignarTobogan()) {
+                    System.out.println("El administrador del tobogan asigno un tobogan...");
+                }
             }
+            System.out.println(ColoresSout.YELLOW + "- El Administrador del Tobogan se retira del parque."
+                    + ColoresSout.RESET);
 
         } catch (Exception e) {
             e.printStackTrace();

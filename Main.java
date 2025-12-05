@@ -3,11 +3,10 @@ package TPOConcurrente;
 
 public class Main {
     public static void main(String[] args) {
-        int cantVisitantes1 = 10;
-        int cantVisitantes2 = 6;
-        int individuales = 5;
-        int dobles = 5;
-        Parque parque = new Parque(individuales, dobles);
+        int cantVisitantes1 = 18, cantVisitantes2 = 6; // tandas de visitantes, visitantes totales=30
+        int individuales = 5, dobles = 5; // cantidad de gomones
+        int molinetes = 5;
+        Parque parque = new Parque(molinetes, individuales, dobles);
         Gomon[] gIndividuales = new Gomon[individuales];
         Thread[] hilosGIndividuales = new Thread[individuales];
         Gomon[] gDobles = new Gomon[dobles];

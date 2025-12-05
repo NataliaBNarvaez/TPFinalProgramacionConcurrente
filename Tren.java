@@ -73,7 +73,7 @@ public class Tren {
     }
 
     // Metodos para el maquinista
-    public void arrancarRecorridoTren() {
+    public boolean arrancarRecorridoTren() throws InterruptedException {
         lock.lock();
         try {
             maquinista.await(7, TimeUnit.SECONDS);
@@ -83,9 +83,9 @@ public class Tren {
                         ColoresSout.UNDERLINE + ColoresSout.PASTEL_PURPLE + "¡Ha comenzado el viaje en tren!"
                                 + ColoresSout.RESET);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            // retorna sigueAbierto por si se despierta una vez que ya cerro, para que no
+            // ejecute el resto
+            return sigueAbierto;
 
         } finally {
             lock.unlock();
@@ -117,6 +117,7 @@ public class Tren {
             sigueAbierto = false;
             maquinista.signal();
             esperaTren.signalAll();
+            tren.signalAll();
 
         } catch (Exception e) {
             e.printStackTrace();

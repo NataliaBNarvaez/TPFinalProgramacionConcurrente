@@ -2,20 +2,17 @@ package TPOConcurrente;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-//import java.util.concurrent.Semaphore;
 
 public class Restaurante {
     private int nroRestaurante, capacidad;
     private BlockingQueue<String> restaurante;
     private Boolean sigueAbierto, aux;
-    // private Semaphore comer;
 
     public Restaurante(int nro, int cap) {
         this.nroRestaurante = nro;
         this.capacidad = cap;
         this.restaurante = new ArrayBlockingQueue(capacidad);
         this.sigueAbierto = true;
-        // this.comer = new Semaphore(capacidad);
     }
 
     // Metodos para los visitantes
@@ -24,7 +21,6 @@ public class Restaurante {
                 Thread.currentThread().getName() + " esta esperando para entrar al restaurante " + nroRestaurante);
         restaurante.put("entro");
         if (aux = puedeEntrar()) {
-            // comer.acquire();
             System.out.println(ColoresSout.PURPLE +
                     Thread.currentThread().getName() + " entro al restaurante " + nroRestaurante + " para "
                     + consumo + ColoresSout.RESET);
@@ -39,7 +35,6 @@ public class Restaurante {
 
     public void salirDelRestaurante() throws InterruptedException {
         System.out.println(Thread.currentThread().getName() + " salio del restaurante " + nroRestaurante);
-        // comer.release();
         restaurante.take();
     }
 

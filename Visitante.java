@@ -15,20 +15,22 @@ public class Visitante implements Runnable {
 
     public void run() {
         try {
-            if (elegir() == 1) { // elige llegar en tour folklorico
+            if (elegir() == 1) { // Elige llegar en tour folklorico
                 if (parque.colectivo.irEnColectivo()) {
                     parque.colectivo.bajarseDelColectivo();
                 }
-            } // sino llega de forma particular
-
+            } // Sino llega de forma particular
             parque.entrarAlParque();
             continuar = parque.puedeEntrar();
-            this.nroDePulsera = parque.recibirPulseraYPasarMolinete();
-
+            if (continuar) {
+                // Si continuar=false, llego cuando el parque estaba cerrado, por lo que no debe
+                // realizar el codigo de abajo
+                Thread.sleep(100);
+                this.nroDePulsera = parque.recibirPulsera();
+            }
             while (continuar) {
                 Random random = new Random();
                 int atraccionAVisitar = random.nextInt(5);
-
                 switch (atraccionAVisitar) {
                     case 0: // Visita la tienda
                         if (parque.shop.adquirirSouvenir()) {
@@ -71,7 +73,6 @@ public class Visitante implements Runnable {
                                             + " se esta tirando por el tobogan " + tobogan + " //" + ColoresSout.RESET);
                             Thread.sleep(2000);
                             parque.faro.tirarseDelTobogan(tobogan);
-                            // Thread.sleep(3000);
                         }
                         break;
 
@@ -86,8 +87,10 @@ public class Visitante implements Runnable {
                                 parque.tren.bajarseDelTren();
                             }
                         }
-                        if (parque.carreraGomones.pedirGomon(elegir() + 1)) {
-                            parque.carreraGomones.pedirPertenencias();
+                        if (parque.puedeContinuar()) {
+                            if (parque.carreraGomones.pedirGomon(elegir() + 1)) {
+                                parque.carreraGomones.pedirPertenencias();
+                            }
                         }
                         break;
 
@@ -95,6 +98,7 @@ public class Visitante implements Runnable {
                         break;
                 }
                 continuar = parque.puedeContinuar();
+                Thread.sleep(3000);
             }
 
         } catch (InterruptedException e) {

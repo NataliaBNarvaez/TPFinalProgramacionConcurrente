@@ -1,5 +1,6 @@
 package TPOConcurrente;
 
+//Clase que me permite mostrar los mensajes de la terminal con colores
 public class ColoresSout {
     public static final String RESET = "\u001B[0m";
     public static final String BOLD = "\u001B[1m";
